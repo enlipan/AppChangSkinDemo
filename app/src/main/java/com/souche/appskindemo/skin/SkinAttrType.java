@@ -14,14 +14,14 @@ import com.souche.appskindemo.manager.SkinResourceManager;
 
 public enum  SkinAttrType {
 
-    BACKGROUND(""){
+    BACKGROUND("background"){
         @Override
         public void apply(View view, String resName) {
             Drawable drawable = getResourceManager().getDrawableByName(resName);
             view.setBackgroundDrawable(drawable);
         }
     },
-    SRC("") {
+    SRC("src") {
         @Override
         public void apply(View view, String resName) {
             if (view instanceof ImageView){
@@ -29,7 +29,7 @@ public enum  SkinAttrType {
             }
         }
     },
-    TEXT_COLOR("") {
+    TEXT_COLOR("textColor") {
         @Override
         public void apply(View view, String resName) {
             if (view instanceof TextView){

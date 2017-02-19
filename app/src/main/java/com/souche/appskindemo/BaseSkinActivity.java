@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.souche.appskindemo.manager.DefaultViewCreate;
+import com.souche.appskindemo.manager.ISkinViewChangingCallBack;
 import com.souche.appskindemo.manager.SkinManager;
 import com.souche.appskindemo.skin.SkinAttr;
 import com.souche.appskindemo.skin.SkinAttrSupport;
@@ -127,5 +128,28 @@ public class BaseSkinActivity extends AppCompatActivity implements SkinManager.I
     @Override
     public void onSkinChanged() {
 
+    }
+
+    /**
+     * 换肤
+     */
+    public void changeSkin(){
+        SkinManager.getInstance().changeActivityViewSkin("","",new ISkinViewChangingCallBack(){
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 }

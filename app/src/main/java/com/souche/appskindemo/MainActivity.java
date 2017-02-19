@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
      * 夜间模式
      */
     private void changeSkinToNight() {
-        loadPluginFromPath();
+        loadPluginFromPath(mSkinPluginPath,mSkinPluginPackageName);
     }
 
      /**
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
      *  - apk 路径获取
      *  -
      */
-    private void loadPluginFromPath() {
+    private void loadPluginFromPath(String apkPath,String pkgName) {
         final AssetManager assetManager;
         try {
             assetManager =  AssetManager.class.newInstance();
