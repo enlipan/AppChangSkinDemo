@@ -32,6 +32,7 @@ public class SkinPrefUtils {
     ////////////////////////////////////////////////////
     private final String fApkPath = "SkinPrefUtils_Apk_Path";
     private final String fPkgName = "SkinPrefUtils_Pkg_Name";
+    private final String fAppSuffix = "SkinPrefUtils_App_Suffix";
 
     public void saveApkPath(String path){
         mSharedPreferences.edit().putString(fApkPath,path).apply();
@@ -49,8 +50,18 @@ public class SkinPrefUtils {
         return mSharedPreferences.getString(fPkgName,"");
     }
 
+    public String getAppResSuffix(){
+        return mSharedPreferences.getString(fAppSuffix,"");
+    }
+
+    public void saveAppResSuffix(String suffix){
+        mSharedPreferences.edit().putString(fAppSuffix,suffix).apply();
+    }
+
     public void clearInfo(){
         mSharedPreferences.edit().clear().apply();
     }
+
+
 
 }
