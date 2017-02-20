@@ -7,8 +7,11 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
+
 import com.souche.appskindemo.skin.SkinView;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -42,13 +45,52 @@ public class SkinManager {
     public void initial(Context context){
         mContext = context.getApplicationContext();
         mAppResource = context.getResources();
+
+        initFromSaveSkinInfo(context);
     }
+
+    private void initFromSaveSkinInfo(Context context) {
+        SkinPrefUtils skinPref = SkinPrefUtils.getInStance(context);
+        String path = skinPref.getApkPath();
+        String pkgName = skinPref.getPkgName();
+
+
+        File file = null;
+        try {
+            file = new File(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!file.exists()){
+             skinPref.clearInfo();
+        }else {
+            loadResourceManger(path,pkgName);
+        }
+    }
+
+    /**
+     * 当前ResourceManager加载时，对应的path信息
+     */
+    private String mCurrentPluginPath;
+    private String mCurrentPluginPkgName;
 
     public void loadResourceManger(String apkPath,String pkgName){
-        mResourceManager = loadPluginFromPath(apkPath,pkgName);
+        /**
+         * 传入的plugin信息，已经加载，则不需要再次加载
+         */
+        if (TextUtils.equals(apkPath,mCurrentPluginPath) && TextUtils.equals(pkgName,mCurrentPluginPkgName)) return;
+
+
+        mResourceManager = initManagerByLoadPlugin(apkPath,pkgName);
     }
 
-    private SkinResourceManager loadPluginFromPath(String apkPath, String pkgName) {
+
+    private void setCurrentPluginInfo(String path,String pkgName){
+        mCurrentPluginPath = path;
+        mCurrentPluginPkgName = pkgName;
+    }
+
+    private SkinResourceManager initManagerByLoadPlugin(String apkPath, String pkgName) {
         final AssetManager assetManager;
         try {
             assetManager =  AssetManager.class.newInstance();
@@ -59,6 +101,9 @@ public class SkinManager {
                 //获取对应apk的Resource
                 Resources apkSkinResource = new Resources(assetManager,mAppResource.getDisplayMetrics(),mAppResource.getConfiguration());
                 SkinResourceManager resourceManager = SkinResourceManager.getInstance(apkSkinResource,pkgName);
+
+                setCurrentPluginInfo(apkPath,pkgName);
+
                 return resourceManager;
             }
         } catch (InstantiationException e) {
@@ -100,8 +145,13 @@ public class SkinManager {
 
     public void changeActivityViewSkin(String apkPath, String pkgName, ISkinViewChangingCallBack callBack) {
         loadResourceManger(apkPath,pkgName);
-
         doChangeSkinWork(callBack);
+    }
+
+    public void changeActivityViewSkinFromSavedPath(ISkinViewChangingCallBack callBack){
+        if (mResourceManager != null){
+            doChangeSkinWork(callBack);
+        }
     }
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -122,7 +172,10 @@ public class SkinManager {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-
+                    for (ISkinViewChangedListener iSkinViewChangedListener : mISkinViewChangesListener) {
+                        doSkinResourceChange(iSkinViewChangedListener);
+                        iSkinViewChangedListener.onSkinChanged();
+                    }
                 }catch (final Exception e){
                     mHandler.post(new Runnable() {
                         @Override
@@ -137,11 +190,40 @@ public class SkinManager {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+
+                updateSavedPluginInfoInPref(mCurrentPluginPath,mCurrentPluginPkgName);
+
                 callBack.onComplete();
             }
         }.execute();
     }
 
+    /**
+     * 遍历所有存货SKinView - 更换皮肤操作
+     * @param iSkinViewChangedListener
+     */
+    private void doSkinResourceChange(ISkinViewChangedListener iSkinViewChangedListener) {
+        List<SkinView> skinViews = mSkinViewMaps.get(iSkinViewChangedListener);
+        for (SkinView skinView : skinViews) {
+            skinView.applySkin();
+        }
+    }
+
+    /**
+     * 将当前加载的皮肤信息更新保存到Pref中
+     * @param path
+     * @param pkgName
+     */
+    private void updateSavedPluginInfoInPref(String path, String pkgName){
+        SkinPrefUtils skinPrefUtils = SkinPrefUtils.getInStance(mContext);
+        skinPrefUtils.saveApkPath(path);
+        skinPrefUtils.saveApkPackageName(pkgName);
+    }
+
+
+    public boolean isNeedChangeSkin(){
+        return !TextUtils.isEmpty(mCurrentPluginPath);
+    }
 
     public interface ISkinViewChangedListener {
         void onSkinChanged();

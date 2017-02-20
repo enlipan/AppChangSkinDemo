@@ -27,6 +27,5 @@ public class SkinAttr {
 
     public void apply(View view) {
         mSkinType.apply(view,mResName);
-
     }
 }

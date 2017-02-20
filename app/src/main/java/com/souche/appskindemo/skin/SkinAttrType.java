@@ -10,6 +10,10 @@ import com.souche.appskindemo.manager.SkinResourceManager;
 
 /**
  * Created by paul on 2017/2/19.
+ *
+ *
+ * 利用apk 插件包中的同名资源文件 替换应用中的资源文件
+ * apk插件包的资源文件需要利用对应patch路径加载生成的 ResourceManager加载插件包资源文件
  */
 
 public enum  SkinAttrType {

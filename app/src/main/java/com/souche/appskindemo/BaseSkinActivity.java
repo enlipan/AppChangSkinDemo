@@ -8,6 +8,7 @@ import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -112,10 +113,21 @@ public class BaseSkinActivity extends AppCompatActivity implements SkinManager.I
     }
 
     /**
-     * 检测换肤状态，是否已经点击过换肤--当前页面进入需要自动换肤
+     * 检测换肤状态，推出应用前是否已经点击过换肤--当前页面进入需要自动换肤
      */
     private void checkAutoSkinState() {
+        if (SkinManager.getInstance().isNeedChangeSkin()) {
+            SkinManager.getInstance().changeActivityViewSkinFromSavedPath(new ISkinViewChangingCallBack() {
+                @Override
+                public void onStart() {}
 
+                @Override
+                public void onComplete() {}
+
+                @Override
+                public void onError(Exception e) {}
+            });
+        }
     }
 
 
@@ -127,29 +139,25 @@ public class BaseSkinActivity extends AppCompatActivity implements SkinManager.I
 
     @Override
     public void onSkinChanged() {
-
+        Log.d("TAG","onSkinChanged");
     }
 
     /**
-     * 换肤
+     * 主动换肤
      */
-    public void changeSkin(){
-        SkinManager.getInstance().changeActivityViewSkin("","",new ISkinViewChangingCallBack(){
+    public void changeSkinFromPath(){
+        SkinManager.getInstance().changeActivityViewSkin("path","pkgName",new ISkinViewChangingCallBack(){
 
             @Override
-            public void onStart() {
-
-            }
+            public void onStart() {}
 
             @Override
-            public void onComplete() {
-
-            }
+            public void onComplete() {}
 
             @Override
-            public void onError(Exception e) {
-
-            }
+            public void onError(Exception e) {}
         });
     }
+
+
 }
